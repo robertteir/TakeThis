@@ -89,5 +89,6 @@ function Get-ExecutedPSScripts {
     $defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet('DefaultDisplayPropertySet',[string[]]$defaultDisplaySet)
     $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
     $results | Add-Member MemberSet PSStandardMembers $PSStandardMembers
+    
     return $results
 }
