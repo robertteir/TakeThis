@@ -20,7 +20,7 @@ function Get-ExecutedPSScripts {
     .DESCRIPTION
     A small tool to find ps1 scripts that can be manipulated.
     .PARAMETER all
-    Lists all executions.
+    Lists all script executions found in the Windows PowerShell event log.
     .INPUTS
     None.
     .OUTPUTS
