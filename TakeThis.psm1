@@ -11,7 +11,7 @@ Write-host "    | (_| | (_) | | (_| | | (_) | | | |  __/_|    | | (_| |   <  __/
 Write-host "     \__, |\___/   \__,_|_|\___/|_| |_|\___(_)    |_|\__,_|_|\_\___|  \__|_| |_|_|___(_)"
 Write-host "      __/ |                                                                             "
 Write-host "     |___/             ""You know a tool is great when it has an ascii-art header""     "
-Write-host "                                                                                       "
+Write-host "                                                                                        "
 
 function Get-ExecutedPSScripts {
     <#

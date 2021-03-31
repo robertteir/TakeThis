@@ -1,5 +1,5 @@
 ```
-PS> import-module .\TakeThis.ps1
+PS> import-module .\TakeThis.psm1
   _____ _   _           _                                              _                 
  |_   _| | ( )         | |                                            | |                
    | | | |_|/ ___    __| | __ _ _ __   __ _  ___ _ __ ___  _   _ ___  | |_ ___           
