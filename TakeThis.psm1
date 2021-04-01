@@ -13,13 +13,93 @@ Write-host "      __/ |                                                         
 Write-host "     |___/             ""You know a tool is great when it has an ascii-art header""     "
 Write-host "                                                                                        "
 
-function Get-ExecutedPSScripts {
+
+function Get-WritableServicePaths {
     <#
     .SYNOPSIS
     It's dangerous to go alone! Take this.
     .DESCRIPTION
     A small tool to find ps1 scripts that can be manipulated.
-    .PARAMETER all
+    .PARAMETER All
+    Lists all script executions found in the Windows PowerShell event log.
+    .INPUTS
+    None.
+    .OUTPUTS
+    Might return something useful, try poking it with a stick.
+    .EXAMPLE
+    PS> Get-WritablePSScripts
+    .LINK
+    https://github.com/robertteir
+    #>
+
+    param(
+        [switch] $All
+    )
+
+    $results = @()
+
+    $services = Get-WmiObject win32_service | select Name, DisplayName, State, PathName
+
+    foreach ($service in $services)
+    {
+        if($service.PathName -match '^[A-Za-z]:\\.*\.exe\b') {
+            $path = $Matches[0].SubString(0, $Matches[0].LastIndexOf('\'))
+            $access = $null
+            $owner = $null
+            $can_read = $null
+            $can_write = $null
+            if($results.FilePath -notcontains $path) {
+                $can_read = $true
+                $can_write = $true
+                if(Test-Path $path)
+                {
+                    $acl = Get-Acl $path
+                    $access = $acl.AccessToString
+                    $owner = $acl.Owner
+                    Try {
+                        [io.file]::Create($path + "\" + [guid]::NewGuid().ToString()).close()
+                    } Catch {
+                        $can_write = $false
+                    } 
+                }
+                else {
+                    $can_read = $false
+                }
+            }
+            ElseIf ($all) {
+                $can_read = $null
+                $can_write = $null
+            }
+            else {
+                continue
+            }
+            $result = [PSCustomObject]@{
+                DateTime = $event.TimeCreated
+                FilePath = $path
+                CanRead = $can_read
+                CanWrite = $can_write
+                Access  = $access
+                Owner = $owner
+            }
+            $results += $result
+        }
+    }
+    $defaultDisplaySet = 'DateTime','FilePath','CanWrite'
+    $defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet('DefaultDisplayPropertySet',[string[]]$defaultDisplaySet)
+    $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
+    $results | Add-Member MemberSet PSStandardMembers $PSStandardMembers
+
+    return $results
+}
+
+
+function Get-WritablePSScripts {
+    <#
+    .SYNOPSIS
+    It's dangerous to go alone! Take this.
+    .DESCRIPTION
+    A small tool to find ps1 scripts that can be manipulated.
+    .PARAMETER All
     Lists all script executions found in the Windows PowerShell event log.
     .INPUTS
     None.
