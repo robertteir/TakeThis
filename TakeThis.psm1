@@ -38,11 +38,11 @@ function Get-WritableServicePaths {
 
     $results = @()
 
-    $services = Get-WmiObject win32_service | select Name, DisplayName, State, PathName
+    $services = Get-WmiObject win32_service | select-object Name, DisplayName, State, PathName
 
-    foreach ($service in $services)
+    foreach ($service in $services | where-object { $_.PathName -ne $null })
     {
-        if($service.PathName -match '^[A-Za-z]:\\.*\.exe\b') {
+        if($service.PathName.Replace('"','') -match '^[A-Za-z]:\\.*\.exe\b') {
             $path = $Matches[0].SubString(0, $Matches[0].LastIndexOf('\'))
             $access = $null
             $owner = $null
@@ -57,7 +57,9 @@ function Get-WritableServicePaths {
                     $access = $acl.AccessToString
                     $owner = $acl.Owner
                     Try {
-                        [io.file]::Create($path + "\" + [guid]::NewGuid().ToString()).close()
+			$guid = [guid]::NewGuid().ToString()
+                        [io.file]::Create($path + "\" + $guid).close()
+			[io.file]::Delete($path + "\" + $guid)
                     } Catch {
                         $can_write = $false
                     } 
@@ -91,7 +93,6 @@ function Get-WritableServicePaths {
 
     return $results
 }
-
 
 function Get-WritablePSScripts {
     <#
