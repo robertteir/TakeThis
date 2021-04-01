@@ -13,7 +13,6 @@ Write-host "      __/ |                                                         
 Write-host "     |___/             ""You know a tool is great when it has an ascii-art header""     "
 Write-host "                                                                                        "
 
-
 function Get-WritableServicePaths {
     <#
     .SYNOPSIS
@@ -38,7 +37,7 @@ function Get-WritableServicePaths {
 
     $results = @()
 
-    $services = Get-WmiObject win32_service | select-object Name, DisplayName, State, PathName
+    $services = Get-WmiObject win32_service | select Name, DisplayName, State, PathName, StartName
 
     foreach ($service in $services | where-object { $_.PathName -ne $null })
     {
@@ -76,8 +75,8 @@ function Get-WritableServicePaths {
                 continue
             }
             $result = [PSCustomObject]@{
-                DateTime = $event.TimeCreated
                 FilePath = $path
+                RunningAs = $service.StartName
                 CanRead = $can_read
                 CanWrite = $can_write
                 Access  = $access
@@ -86,7 +85,7 @@ function Get-WritableServicePaths {
             $results += $result
         }
     }
-    $defaultDisplaySet = 'DateTime','FilePath','CanWrite'
+    $defaultDisplaySet = 'RunningAs','FilePath','CanWrite'
     $defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet('DefaultDisplayPropertySet',[string[]]$defaultDisplaySet)
     $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
     $results | Add-Member MemberSet PSStandardMembers $PSStandardMembers
