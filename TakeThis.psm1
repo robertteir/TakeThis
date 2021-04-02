@@ -56,15 +56,16 @@ function Get-WritableServicePaths {
                     $access = $acl.AccessToString
                     $owner = $acl.Owner
                     Try {
-			$guid = [guid]::NewGuid().ToString()
+			            $guid = [guid]::NewGuid().ToString()
                         [io.file]::Create($path + "\" + $guid).close()
-			[io.file]::Delete($path + "\" + $guid)
+			            [io.file]::Delete($path + "\" + $guid)
                     } Catch {
                         $can_write = $false
                     } 
                 }
                 else {
                     $can_read = $false
+                    $can_write = $false
                 }
             }
             ElseIf ($all) {
@@ -143,6 +144,7 @@ function Get-WritablePSScripts {
                         }
                         else {
                             $can_read = $false
+                            $can_write = $false
                         }
                     }
                     ElseIf ($all) {
